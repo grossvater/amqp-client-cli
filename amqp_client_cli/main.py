@@ -49,10 +49,6 @@ def print_success(message):
 
 @app.main(description='A command line interface for interacting with '
                       'amqp exchanges')
-@clip.opt('-v', '--vhost', name='vhost',
-          help='The vhost to connect to',
-          required=False, default=None,
-          inherit_only=True)
 @clip.flag('-n', '--nocolor', name='nocolor',
            default=False, hidden=True,
            help='Do not colorize output',
@@ -63,7 +59,7 @@ def amqpcli():
 
 @amqpcli.subcommand(name='send',
                     description='Send a message to an exchange',
-                    inherits=('vhost', 'nocolor',)
+                    inherits=('nocolor',)
                     )
 @clip.arg('host', name='host', required=True,
           help='Address of the amqp server')
@@ -78,19 +74,23 @@ def amqpcli():
 @clip.opt("-f", "--file-path", name="file_path", required=False,
           help="Path of a file to use as the message body",
           default=None)
-@clip.opt('-u', '--user', name='user',
-          help='User to connect to the queue as')
 @clip.flag('-p', '--persistent', name='persistent',
            help='Make the message persistent if routed to a durable queue',
            default=False)
+@clip.opt('-u', '--user', name='user',
+          help='User to connect to the queue as')
+@clip.opt('-v', '--vhost', name='vhost',
+          help='The vhost to connect to',
+          required=False, default=None,
+          inherit_only=True)
 def amqp_send(host, port, exchange, routing_key, message,
-              file_path, user, persistent, **kwargs):
+              file_path, user, persistent, vhost, **kwargs):
     if not user:
       user = os.getenv('AMQP_USER', None)
     if not user:
       user = input(Fore.GREEN + "User: " + Fore.RESET)
     password = get_password(user)
-    vhost = kwargs.get('vhost', None) or get_vhost(user)
+    vhost = vhost or get_vhost(user)
 
     if not ((message is None) ^ (file_path is None)):
         print_failure('Exactly one option (-f) or (-m) '
