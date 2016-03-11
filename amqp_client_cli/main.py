@@ -81,8 +81,7 @@ def amqpcli():
           help='User to connect to the queue as')
 @clip.opt('-v', '--vhost', name='vhost',
           help='The vhost to connect to',
-          required=False, default=None,
-          inherit_only=True)
+          required=False, default=None)
 def amqp_send(host, port, exchange, routing_key, message,
               file_path, user, persistent, vhost, **kwargs):
     if not user:
