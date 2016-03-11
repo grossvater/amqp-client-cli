@@ -20,7 +20,7 @@ It is up to you to configure your infrastructure elsewhere before using this too
 Install via pip:
 
 ```
-pip install amqp-client-cli
+pip install amqp_client_cli
 ```
 
 ## How do I use it?

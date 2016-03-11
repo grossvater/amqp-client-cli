@@ -5,14 +5,14 @@ from io import open
 setup(
     name='amqp_client_cli',
     packages=find_packages (),
-    version='0.1',
+    version='0.1.1',
     description='A command line interface for interacting with '
                 'amqp exchanges',
     author='Dillon Dixon',
     author_email='dillondixon@gmail.com',
     url='https://github.com/ownaginatious/amqp-client-cli',
     download_url='https://github.com/ownaginatious'
-                  '/amqp-client-cli/tarball/0.3.1',
+                  '/amqp-client-cli/tarball/0.1.1',
     license='MIT',
     keywords=['amqp', 'cli', 'client', 'rabbitmq', 'amq'],
     classifiers=['Environment :: Console'],

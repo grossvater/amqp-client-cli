@@ -34,7 +34,7 @@ Install via pip:
 
 ::
 
-    pip install amqp-client-cli
+    pip install amqp_client_cli
 
 How do I use it?
 ----------------
