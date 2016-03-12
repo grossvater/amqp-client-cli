@@ -79,6 +79,7 @@ Sending messages can be done using the ``amqpcli send`` command.
       -m, --message [text]    String to use as the message body
       -f, --file-path [text]  Path of a file to use as the message body
       -p, --persistent        Make the message persistent if routed to a durable queue
+      -s, --ssl               Use ssl/tls as the connection protocol
       -u, --user [text]       User to connect to the queue as
       -v, --vhost [text]      The vhost to connect to
       -n, --nocolor           Do not colorize output
@@ -93,7 +94,7 @@ Let's define our message on the command line!
 
 ::
 
-    $ amqpcli send localhost 5671 exchange_a simple_message -m "Hello there" -v my_vhost
+    $ amqpcli send localhost 5671 exchange_a simple_message -m "Hello there" -v my_vhost -s
     User: guest
     Password:
     Connecting to queue @ localhost:5671... SUCCESS!
@@ -114,7 +115,7 @@ reasons.
 
 ::
 
-    $ amqpcli send localhost 5671 exchange_a simple_message -f my_message.txt -v my_vhost
+    $ amqpcli send localhost 5671 exchange_a simple_message -f my_message.txt -v my_vhost -s
     User: guest
     Password:
     Connecting to queue @ localhost:5671... SUCCESS!

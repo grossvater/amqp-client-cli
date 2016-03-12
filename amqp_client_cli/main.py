@@ -26,6 +26,7 @@ def get_password(user):
         return user_record['password']
     return getpass(Fore.GREEN + "Password: " + Fore.RESET)
 
+
 def get_vhost(user):
     vhost = os.getenv('AMQP_VHOST', None)
     if vhost:
@@ -34,6 +35,7 @@ def get_vhost(user):
     if user_record:
         return user_record['vhost']
     return '/'
+
 
 def colorize(nocolor):
     init(strip=nocolor)
@@ -77,36 +79,39 @@ def amqpcli():
 @clip.flag('-p', '--persistent', name='persistent',
            help='Make the message persistent if routed to a durable queue',
            default=False)
+@clip.flag('-s', '--ssl', name='ssl',
+           help='Use ssl/tls as the connection protocol',
+           default=False)
 @clip.opt('-u', '--user', name='user',
           help='User to connect to the queue as')
 @clip.opt('-v', '--vhost', name='vhost',
           help='The vhost to connect to',
           required=False, default=None)
 def amqp_send(host, port, exchange, routing_key, message,
-              file_path, user, persistent, vhost, **kwargs):
+              file_path, user, persistent, vhost, ssl, **kwargs):
     if not user:
-      user = os.getenv('AMQP_USER', None)
+        user = os.getenv('AMQP_USER', None)
     if not user:
-      user = input(Fore.GREEN + "User: " + Fore.RESET)
+        user = input(Fore.GREEN + "User: " + Fore.RESET)
     password = get_password(user)
     vhost = vhost or get_vhost(user)
 
     if not ((message is None) ^ (file_path is None)):
         print_failure('Exactly one option (-f) or (-m) '
-                        'must be specified',)
+                      'must be specified',)
         clip.exit(err=True)
 
     properties = pika.BasicProperties(delivery_mode=2 if persistent else 1)
     credentials = pika.PlainCredentials(user, password)
     print("Connecting to queue @ %s:%s... " % (host, port), end="")
     try:
-      connection = pika.BlockingConnection(pika.ConnectionParameters(
-                                           host=host, port=port,
-                                           virtual_host=vhost,
-                                           credentials=credentials))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+                                             host=host, port=port, ssl=ssl,
+                                             virtual_host=vhost,
+                                             credentials=credentials))
     except Exception as e:
-      print_failure("FAILED!", out=sys.stdout)
-      raise e
+        print_failure("FAILED!", out=sys.stdout)
+        raise e
 
     print_success("SUCCESS!")
 
@@ -117,11 +122,13 @@ def amqp_send(host, port, exchange, routing_key, message,
             body = f.read()
     channel = connection.channel()
     try:
-      channel.basic_publish(exchange=exchange, routing_key=routing_key,
-                            body=body, properties=properties)
+        channel.basic_publish(exchange=exchange, routing_key=routing_key,
+                              body=body, properties=properties)
     finally:
-      channel.close()
-    print_success("Message successfully published to exchange [%s]!" % exchange)
+        channel.close()
+    print_success("Message successfully published to exchange [%s]!"
+                  % exchange)
+
 
 @amqpcli.subcommand(name='config',
                     description='Configure the amqpcli client',
