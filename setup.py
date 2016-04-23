@@ -13,8 +13,6 @@ setup(
     author='Dillon Dixon',
     author_email='dillondixon@gmail.com',
     url='https://github.com/ownaginatious/amqp-client-cli',
-    download_url='https://github.com/ownaginatious'
-                 '/amqp-client-cli/tarball/0.2',
     license='MIT',
     keywords=['amqp', 'cli', 'client', 'rabbitmq', 'amq'],
     classifiers=['Environment :: Console'],
