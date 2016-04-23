@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 from setuptools import setup, find_packages
 from io import open
+import versioneer
 
 setup(
     name='amqp_client_cli',
     packages=find_packages(),
-    version='0.2',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='A command line interface for interacting with '
                 'amqp exchanges',
     author='Dillon Dixon',
