@@ -70,7 +70,7 @@ Options:
 
 Let's assume we have a [RabbitMQ](https://www.rabbitmq.com) server listening at `localhost:5671` with an exchange we would like to send a message to named `exchange_a` on a vhost `my_vhost` with a routing key of `simple_message`. We are going to send via the `guest` user.
 
-####Let's define our message on the command line!
+#### Let's define our message on the command line!
 
 ```
 $ amqpcli send localhost 5671 exchange_a simple_message -m "Hello there" -v my_vhost -s
@@ -80,7 +80,7 @@ Connecting to queue @ localhost:5671... SUCCESS!
 Message successfully published to exchange [exchange_a]!
 ```
 
-####Let's define our message as a file!
+#### Let's define our message as a file!
 
 The message body can also be a file. It will be interpreted as binary.
 
