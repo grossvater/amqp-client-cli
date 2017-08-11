@@ -21,7 +21,7 @@ def get_password(user):
     password = os.getenv('AMQP_PASSWORD', None)
     if password:
         return password
-    user_record = USER_MAP['users'].get(user, None)
+    user_record = USER_MAP.get('users', {}).get(user, None)
     if user_record:
         return user_record['password']
     return getpass(Fore.GREEN + "Password: " + Fore.RESET)
@@ -31,7 +31,7 @@ def get_vhost(user):
     vhost = os.getenv('AMQP_VHOST', None)
     if vhost:
         return vhost
-    user_record = USER_MAP['users'].get(user, None)
+    user_record = USER_MAP.get('users', {}).get(user, None)
     if user_record:
         return user_record['vhost']
     return '/'
@@ -59,10 +59,10 @@ def amqpcli():
     pass
 
 
-@amqpcli.subcommand(name='send',
-                    description='Send a message to an exchange',
-                    inherits=('nocolor',)
-                    )
+@amqpcli.subcommand(
+    name='send',
+    description='Send a message to an exchange',
+    inherits=('nocolor',))
 @clip.arg('host', name='host', required=True,
           help='Address of the amqp server')
 @clip.arg('port', name='port', type=int, required=True,
@@ -91,10 +91,14 @@ def amqp_send(host, port, exchange, routing_key, message,
               file_path, user, persistent, vhost, ssl, **kwargs):
     if not user:
         user = os.getenv('AMQP_USER', None)
-    if not user:
-        user = input(Fore.GREEN + "User: " + Fore.RESET)
-    password = get_password(user)
-    vhost = vhost or get_vhost(user)
+    try:
+        if not user:
+            user = input(Fore.GREEN + "User: " + Fore.RESET)
+        password = get_password(user)
+        vhost = vhost or get_vhost(user)
+    except KeyboardInterrupt:
+        print_failure("\nTerminated from keyboard")
+        sys.exit(1)
 
     if not ((message is None) ^ (file_path is None)):
         print_failure('Exactly one option (-f) or (-m) '
@@ -103,15 +107,16 @@ def amqp_send(host, port, exchange, routing_key, message,
 
     properties = pika.BasicProperties(delivery_mode=2 if persistent else 1)
     credentials = pika.PlainCredentials(user, password)
-    print("Connecting to queue @ %s:%s... " % (host, port), end="")
+    sys.stdout.write("Connecting to queue @ %s:%s... " % (host, port))
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters(
                                              host=host, port=port, ssl=ssl,
                                              virtual_host=vhost,
                                              credentials=credentials))
-    except Exception as e:
+    except pika.exceptions.AMQPError as e:
         print_failure("FAILED!", out=sys.stdout)
-        raise e
+        print_failure("Failure reason: %s" % repr(e))
+        sys.exit(1)
 
     print_success("SUCCESS!")
 
@@ -137,10 +142,10 @@ def amqp_config():
     pass
 
 
-@amqp_config.subcommand(name='add_user',
-                        description='Add a new queue user',
-                        inherits=('nocolor',)
-                        )
+@amqp_config.subcommand(
+    name='add_user',
+    description='Add a new queue user or edit an existing one',
+    inherits=('nocolor',))
 def amqp_add_user():
     new_user = input(Fore.GREEN + "User: " + Fore.RESET)
     new_pass = getpass(Fore.GREEN + "Password: " + Fore.RESET)
@@ -152,9 +157,10 @@ def amqp_add_user():
     USER_MAP.write()
 
 
-@amqp_config.subcommand(name='delete_user',
-                        description='Remove an existing queue user',
-                        inherits=('nocolor',))
+@amqp_config.subcommand(
+    name='delete_user',
+    description='Remove an existing queue user',
+    inherits=('nocolor',))
 @clip.arg('user', name='user',
           help='User to delete',
           required=True)
