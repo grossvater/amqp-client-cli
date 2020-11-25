@@ -3,6 +3,8 @@ import os
 import sys
 import clip
 import pika
+import urllib3
+
 from colorama import init, Back, Fore, Style
 from configobj import ConfigObj
 
@@ -87,8 +89,11 @@ def amqpcli():
 @clip.opt('-v', '--vhost', name='vhost',
           help='The vhost to connect to',
           required=False, default=None)
+@clip.opt('-H', '--headers', name='headers',
+          help='Message headers (application/x-www-form-urlencoded)',
+          required=False, default=None)
 def amqp_send(host, port, exchange, routing_key, message,
-              file_path, user, persistent, vhost, ssl, **kwargs):
+              file_path, user, persistent, vhost, ssl, headers, **kwargs):
     if not user:
         user = os.getenv('AMQP_USER', None)
     try:
@@ -105,7 +110,16 @@ def amqp_send(host, port, exchange, routing_key, message,
                       'must be specified',)
         clip.exit(err=True)
 
-    properties = pika.BasicProperties(delivery_mode=2 if persistent else 1)
+    decoded_headers = {}
+    if not (headers is None):
+        try:
+            decoded_headers = urllib3.parse.parse_qs(headers)
+        except Exception:
+            print_failure('Invalid headers option')
+
+    properties = pika.BasicProperties(delivery_mode=2 if persistent else 1,
+                                      headers = decoded_headers)
+
     credentials = pika.PlainCredentials(user, password)
     sys.stdout.write("Connecting to queue @ %s:%s... " % (host, port))
     try:
