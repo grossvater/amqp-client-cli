@@ -124,7 +124,7 @@ def amqp_send(host, port, exchange, routing_key, message,
     sys.stdout.write("Connecting to queue @ %s:%s... " % (host, port))
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters(
-                                             host=host, port=port, ssl=ssl,
+                                             host=host, port=port,
                                              virtual_host=vhost,
                                              credentials=credentials))
     except pika.exceptions.AMQPError as e:
