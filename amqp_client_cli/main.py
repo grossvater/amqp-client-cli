@@ -3,7 +3,7 @@ import os
 import sys
 import clip
 import pika
-import urllib3
+import urllib.parse
 
 from colorama import init, Back, Fore, Style
 from configobj import ConfigObj
@@ -113,7 +113,7 @@ def amqp_send(host, port, exchange, routing_key, message,
     decoded_headers = {}
     if not (headers is None):
         try:
-            decoded_headers = urllib3.parse.parse_qs(headers)
+            decoded_headers = urllib.parse.parse_qs(headers)
         except Exception:
             print_failure('Invalid headers option')
 
