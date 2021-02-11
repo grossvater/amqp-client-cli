@@ -113,10 +113,10 @@ def amqp_send(host, port, exchange, routing_key, message,
     decoded_headers = {}
     if not (headers is None):
         try:
-            decoded_headers = urllib.parse.parse_qs(headers)
+            decoded_headers = dict(urllib.parse.parse_qsl(headers))
         except Exception:
             print_failure('Invalid headers option')
-
+    print(decoded_headers)
     properties = pika.BasicProperties(delivery_mode=2 if persistent else 1,
                                       headers = decoded_headers)
 
